@@ -50,25 +50,6 @@ def convert_to_nan(df, column):
         df[column][i] = np.nan
     df[column] = df[column].astype(float)
 
-# processing each page table
-def crawl_table(driver):
-    # read the table
-    data = bs(driver.page_source, 'html.parser')
-    table = pd.read_html(str(data.find_all('div', 'ms-neat-row')[17]))[0]
-    # drop unnecessary columns: "Check-box at table header"
-    table.drop(['Check-box at table header'], 1, inplace = True)
-    # find each item url and insert to the table)
-    each_url = data.find_all('a', class_ = 'mds-link mds-link--no-underline ec-table__investment-link ng-binding')
-    url_value = ['https://www.morningstar.co.uk' + u['href'] for u in each_url]
-    table['url'] = url_value
-    # Rating string to int
-    table['Morningstar Rating™'] = table['Morningstar Rating™'].apply(lambda x:x[-1])
-    table['Morningstar Sustainability Rating™'] = table['Morningstar Sustainability Rating™'].apply(lambda x:x[-1])
-
-    # value: '-' to NaN
-    table.replace('–', np.nan, inplace=True)
-    return table
-
 ua = UserAgent(verify_ssl=False)
 user_agent = ua.Chrome
 service = Service(executable_path='../chromedriver')
